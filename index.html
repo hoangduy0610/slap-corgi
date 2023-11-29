@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Slap Corgi</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f5f5f5;
+        }
+        #startButton {
+            font-size: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #corgi {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .red-alert-button {
+            background-color: #f44336!important;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h1>Slap Corgi - Try to slap while it turning away</h1>
+        <!-- <div id="countdown"></div> -->
+        <div id="score">Score: 0</div>
+        <button id="startButton">Start Game</button>
+    </center>
+    <img id="corgi" style="display: none;" src="corgi.png" alt="Corgi">
+
+    <script>
+        var corgi = document.getElementById("corgi");
+        // var countdownElement = document.getElementById("countdown");
+        var scoreElement = document.getElementById("score");
+        var startButton = document.getElementById("startButton");
+        var score = 0;
+        var isAwake = false;
+        var isGameOver = false;
+        var slapSound = new Audio("s1.mp3");
+        var awakeSound = new Audio("s2.mp3");
+
+        function randomBetween(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+
+        function startGame() {
+            startButton.disabled = true;
+            startButton.className = "red-alert-button";
+            startButton.innerHTML = "5";
+            slapSound.currentTime = 5;
+            slapSound.loop = true;
+            awakeSound.loop = true;
+
+            var countdown = 5;
+            var countdownInterval = setInterval(function () {
+                countdown--;
+                startButton.innerHTML = countdown;
+
+                if (countdown === 0) {
+                    clearInterval(countdownInterval);
+                    startButton.innerHTML = "GO!!!";
+
+                    setTimeout(function () {
+                        startButton.innerHTML = "Start Game";
+                        startButton.style.display = "none";
+                        startButton.className = "";
+                        startRound();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+
+        function randomAwake() {
+            setTimeout(function () {
+                if (!isGameOver) {
+                    if (!isAwake) {
+                        isAwake = true;
+                        corgi.src = "corgi2.png";
+                        slapSound.pause();
+                        awakeSound.play();
+                    } else {
+                        isAwake = false;
+                        corgi.src = "corgi.png";
+                        awakeSound.pause();
+                        slapSound.play();
+                    }
+                    randomAwake();
+                }
+            }, randomBetween(1000, 5000));
+        }
+
+        function startRound() {
+            isGameOver = false;
+            score = 0;
+            scoreElement.innerHTML = "Score: " + score;
+            isAwake = false;
+            corgi.src = "corgi.png";
+            corgi.style.display = "block";
+            slapSound.play();
+            randomAwake();
+        }
+
+        function slapCorgi() {
+            if (isGameOver){
+                awakeSound.pause();
+                startRound();
+                return;
+            }
+            if (isAwake) {
+                gameOver();
+            } else {
+                score++;
+                scoreElement.innerHTML = "Score: " + score;
+            }
+        }
+
+        function gameOver() {
+            corgi.style.display = "block";
+            startButton.disabled = false;
+            scoreElement.innerHTML = "Game Over! Your score is: " + score;
+            isGameOver = true;
+            alert("Game Over! Your score is: " + score);
+        }
+
+        startButton.addEventListener("click", startGame);
+        corgi.addEventListener("click", slapCorgi);
+    </script>
+</body>
+
+</html>
